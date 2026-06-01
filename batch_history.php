@@ -5,7 +5,6 @@ requireAdminLogin();
 $db = getDB();
 
 // 1. UPDATED MASTER QUERY
-// Added pb.created_by to ensure it's available for the loop
 $query = "SELECT 
     pb.id, 
     pb.batch_number, 
@@ -52,9 +51,30 @@ $results = $db->query($query);
         .badge-red { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
         .text-sm { font-size: 0.75rem; }
         .stat-label { color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-size: 0.7rem; font-weight: bold; }
-        .material-text { font-size: 0.85rem; line-height: 1.4; color: #eee; display: block; max-width: 300px; }
+        
+        .material-text { font-size: 0.85rem; line-height: 1.4; color: #111111; display: block; max-width: 300px; font-weight: 500; }
         .loss-text { font-weight: bold; margin-top: 5px; display: block; }
         .user-tag { color: #3498db; font-weight: 600; margin-top: 4px; display: block; font-size: 0.7rem; }
+
+        /* Page Layout Styles */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        /* Updated Print Button Styles to Green Theme */
+        .btn-print { background: #2ecc71; color: #ffffff; padding: 10px 18px; border: none; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s; }
+        .btn-print:hover { background: #27ae60; }
+        .btn-print:active { transform: scale(0.98); }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body { background: #ffffff; color: #000000; font-size: 12px; }
+            ._sidebar, .sidebar, .btn-print, .no-print { display: none !important; }
+            .layout { display: block; }
+            .main-content { padding: 0; margin: 0; width: 100%; }
+            .table-card { box-shadow: none; border: none; padding: 0; }
+            .data-table { width: 100%; border-collapse: collapse; }
+            .data-table th, .data-table td { border: 1px solid #ddd !important; padding: 8px !important; }
+            .badge { border: 1px solid #000; background: none !important; color: #000 !important; }
+        }
     </style>
 </head>
 <body>
@@ -66,6 +86,11 @@ $results = $db->query($query);
         <div>
             <h1>Production Audit</h1>
             <div class="breadcrumb">Real-time batch efficiency and extraction tracking</div>
+        </div>
+        <div>
+            <button type="button" class="btn-print" onclick="window.print()">
+                <span>🖨️ Print / Save Daily PDF</span>
+            </button>
         </div>
     </div>
 
@@ -105,7 +130,7 @@ $results = $db->query($query);
                         <span class="material-text">
                             <?= $row['raw_materials_list'] ? htmlspecialchars($row['raw_materials_list']) : '<i class="text-muted">No materials</i>' ?>
                         </span>
-                        <div class="text-sm" style="margin-top:5px; color:#aaa;">Total: <?= number_format($inputTotal, 2) ?>kg</div>
+                        <div class="text-sm" style="margin-top:5px; color:#111111; font-weight: 600;">Total: <?= number_format($inputTotal, 2) ?>kg</div>
                     </td>
 
                     <td>
@@ -113,15 +138,16 @@ $results = $db->query($query);
                         <span class="material-text">
                             <?= $row['extraction_list'] ? htmlspecialchars($row['extraction_list']) : '<i class="text-muted">No extraction data</i>' ?>
                         </span>
-                        <div class="text-sm loss-text" style="color:<?= $loss > 15 ? '#e74c3c' : '#f1c40f' ?>;">
-                            Loss: <?= number_format($loss, 1) ?>% (<?= number_format($extractedTotal, 2) ?>kg yield)
+                        <div class="text-sm loss-text" style="color:#111111;">
+                            Loss: <span style="color:<?= $loss > 15 ? '#e74c3c' : '#f1c40f' ?>; font-weight: 800;"><?= number_format($loss, 1) ?>%</span> 
+                            (<?= number_format($extractedTotal, 2) ?>kg yield)
                         </div>
                     </td>
 
                     <td>
                         <?php if($row['total_packs']): ?>
                             <div class="stat-label">Total Units</div>
-                            <strong><?= number_format($row['total_packs']) ?> Packs</strong>
+                            <strong style="color: #111111;"><?= number_format($row['total_packs']) ?> Packs</strong>
                         <?php else: ?>
                             <span class="text-muted italic">No packs logged</span>
                         <?php endif; ?>
